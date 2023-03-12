@@ -5,9 +5,6 @@ const Author  = require('../models/authors')
 router.get('/', async (req, res)=>{
     try {
         const authors = await Author.find({})
-        authors.forEach(author => {
-            console.log(author.name)
-        });
         res.render('authors/index', {
             authors:authors
         })
