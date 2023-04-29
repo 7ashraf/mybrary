@@ -35,4 +35,16 @@ router.post('/', async (req, res)=>{
     }
 })
 
+async function renderNewPage(res, author, hasError = false){
+    try {
+        const authors = await Author.find({})
+        res.render('books/new',{
+            authors: authors,
+            book: book
+        })
+    } catch (error) {
+        
+    }
+}
+
 module.exports = router
