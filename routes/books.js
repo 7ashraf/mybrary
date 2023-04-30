@@ -7,12 +7,7 @@ const path = require('path')
 const { render } = require('ejs')
 const uploadPath = path.join('public', Book.coverImageBasePath)
 const imageMimTypes= ['image/jpeg', 'image/png', 'image/gif', 'image/jpg']
-const upload = multer({
-    dest: uploadPath,
-    fileFilter: (req, file, callBack)=>{
-        callBack(null, imageMimTypes.includes(file.mimetype))
-    }
-})
+
 
 //all books route
 
@@ -41,17 +36,16 @@ router.get('/new', async (req, res)=>{
 })
 
 //create book route
-router.post('/',upload.single('cover'), async (req, res)=>{
-    const fileName = req.file != null ? req.file.filename : null
+router.post('/', async (req, res)=>{
     const book = new Book({
         title: req.body.title,
         author: req.body.author,
         publishDate: req.body.publishDate,
         pageCount: req.body.pageCount,
-        coverImageName : fileName,
         description: req.body.description
 
     })
+    saveCover(book, req.body.cover)
 
     try {
         const newBook = await book.save()
@@ -75,6 +69,14 @@ async function renderNewPage(res, book, hasError = false) {
       res.redirect('/books')
     }
   }
+function saveCover(book, coverEncode){
+    if(coverEncode ==null) return
+    const cover = JSON.parse(coverEncode)
+    if(cover!=null && imageMimTypes.includes(cover.type)){
+        book.coverImage = new Buffer.from(cover.data, 'base64')
+        book.coverImageType = cover.type
+    }
+}
 
 
 module.exports = router
